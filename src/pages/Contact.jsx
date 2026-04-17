@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import PartnerBanner from '../components/PartnerBanner'
-import Footer from '../components/Footer'
+import PartnerBanner from "../components/PartnerBanner";
+import Footer from "../components/Footer";
 
 const Contact = () => {
   const [agreed, setAgreed] = useState(false);
@@ -11,6 +11,16 @@ const Contact = () => {
     email: "",
     message: "",
   });
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
 
   const handleChange = (e) =>
     setForm((p) => ({ ...p, [e.target.name]: e.target.value }));
@@ -29,7 +39,12 @@ const Contact = () => {
       </div>
 
       {/* Hero Text */}
-      <div style={{ textAlign: "center", padding: "48px 16px 40px" }}>
+      <div
+        style={{
+          textAlign: "center",
+          padding: isMobile ? "32px 16px 28px" : "48px 16px 40px",
+        }}
+      >
         <span
           style={{
             display: "inline-block",
@@ -46,7 +61,7 @@ const Contact = () => {
         </span>
         <h1
           style={{
-            fontSize: "32px",
+            fontSize: isMobile ? "24px" : "32px",
             fontWeight: "700",
             color: "#111827",
             margin: "0 0 14px",
@@ -72,11 +87,15 @@ const Contact = () => {
       <div
         style={{
           display: "grid",
-          gridTemplateColumns: "1fr 1fr",
+          gridTemplateColumns: isMobile || isTablet ? "1fr" : "1fr 1fr", // mobile/tablet: stack, desktop: side by side
           gap: "40px",
           maxWidth: "900px",
           margin: "0 auto",
-          padding: "0 40px 60px",
+          padding: isMobile
+            ? "0 16px 48px"
+            : isTablet
+              ? "0 32px 52px"
+              : "0 40px 60px",
           alignItems: "start",
         }}
       >
@@ -89,6 +108,7 @@ const Contact = () => {
               alignItems: "center",
               gap: "16px",
               marginBottom: "36px",
+              flexWrap: "wrap",
             }}
           >
             <span
@@ -96,8 +116,6 @@ const Contact = () => {
             >
               Follow Us
             </span>
-
-            {/* X (Twitter) */}
             <a
               href="#"
               style={{
@@ -109,23 +127,17 @@ const Contact = () => {
             >
               𝕏
             </a>
-
-            {/* LinkedIn */}
             <a href="#" style={{ textDecoration: "none" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#f5a623">
                 <path d="M16 8a6 6 0 0 1 6 6v7h-4v-7a2 2 0 0 0-2-2 2 2 0 0 0-2 2v7h-4v-7a6 6 0 0 1 6-6zM2 9h4v12H2z" />
                 <circle cx="4" cy="4" r="2" />
               </svg>
             </a>
-
-            {/* Facebook */}
             <a href="#" style={{ textDecoration: "none" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#f5a623">
                 <path d="M18 2h-3a5 5 0 0 0-5 5v3H7v4h3v8h4v-8h3l1-4h-4V7a1 1 0 0 1 1-1h3z" />
               </svg>
             </a>
-
-            {/* Reddit */}
             <a href="#" style={{ textDecoration: "none" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#f5a623">
                 <circle cx="12" cy="12" r="10" />
@@ -135,8 +147,6 @@ const Contact = () => {
                 />
               </svg>
             </a>
-
-            {/* YouTube */}
             <a href="#" style={{ textDecoration: "none" }}>
               <svg width="20" height="20" viewBox="0 0 24 24" fill="#f5a623">
                 <path d="M22.54 6.42a2.78 2.78 0 0 0-1.95-1.96C18.88 4 12 4 12 4s-6.88 0-8.59.46A2.78 2.78 0 0 0 1.46 6.42 29 29 0 0 0 1 12a29 29 0 0 0 .46 5.58 2.78 2.78 0 0 0 1.95 1.96C5.12 20 12 20 12 20s6.88 0 8.59-.46a2.78 2.78 0 0 0 1.95-1.96A29 29 0 0 0 23 12a29 29 0 0 0-.46-5.58z" />
@@ -148,7 +158,7 @@ const Contact = () => {
             </a>
           </div>
 
-          {/* Contact Items with divider */}
+          {/* Contact Items */}
           {[
             {
               icon: (
@@ -266,7 +276,7 @@ const Contact = () => {
           style={{
             background: "#fff",
             borderRadius: "20px",
-            padding: "32px",
+            padding: isMobile ? "24px 20px" : "32px",
             boxShadow: "0 4px 20px rgba(0,0,0,0.07)",
           }}
         >
@@ -285,7 +295,7 @@ const Contact = () => {
           <div
             style={{
               display: "grid",
-              gridTemplateColumns: "1fr 1fr",
+              gridTemplateColumns: isMobile ? "1fr" : "1fr 1fr", // mobile: stack, বাকি: side by side
               gap: "12px",
               marginBottom: "16px",
             }}
@@ -470,6 +480,7 @@ const Contact = () => {
               fontWeight: "700",
               cursor: "pointer",
               transition: "background 0.2s",
+              width: isMobile ? "100%" : "auto", // mobile: full width
             }}
             onMouseEnter={(e) => (e.currentTarget.style.background = "#2d2a5e")}
             onMouseLeave={(e) => (e.currentTarget.style.background = "#1e1b4b")}
@@ -478,8 +489,8 @@ const Contact = () => {
           </button>
         </div>
       </div>
-      <PartnerBanner/>
-      <Footer/>
+      <PartnerBanner />
+      <Footer />
     </div>
   );
 };

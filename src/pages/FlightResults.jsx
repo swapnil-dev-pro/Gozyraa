@@ -1,50 +1,14 @@
 import { useState } from "react";
 import { useNavigate } from "react-router-dom";
 import Navbar from "../components/Navbar";
-import PartnerBanner from '../components/PartnerBanner'
-import Footer from '../components/Footer'
+import PartnerBanner from "../components/PartnerBanner";
+import Footer from "../components/Footer";
 
 const flights = [
-  {
-    airline: "Emirates",
-    from: "DHK",
-    to: "JED",
-    depart: "3:05",
-    arrive: "5:05",
-    duration: "3h 00m",
-    price: 9987,
-    stops: 0,
-  },
-  {
-    airline: "Emirates",
-    from: "DHK",
-    to: "JED",
-    depart: "3:05",
-    arrive: "5:05",
-    duration: "3h 00m",
-    price: 9987,
-    stops: 1,
-  },
-  {
-    airline: "Emirates",
-    from: "DHK",
-    to: "JED",
-    depart: "3:05",
-    arrive: "5:05",
-    duration: "3h 00m",
-    price: 9987,
-    stops: 0,
-  },
-  {
-    airline: "Emirates",
-    from: "DHK",
-    to: "JED",
-    depart: "3:05",
-    arrive: "5:05",
-    duration: "3h 00m",
-    price: 9987,
-    stops: 2,
-  },
+  { airline: "Emirates", from: "DHK", to: "JED", depart: "3:05", arrive: "5:05", duration: "3h 00m", price: 9987, stops: 0 },
+  { airline: "Emirates", from: "DHK", to: "JED", depart: "3:05", arrive: "5:05", duration: "3h 00m", price: 9987, stops: 1 },
+  { airline: "Emirates", from: "DHK", to: "JED", depart: "3:05", arrive: "5:05", duration: "3h 00m", price: 9987, stops: 0 },
+  { airline: "Emirates", from: "DHK", to: "JED", depart: "3:05", arrive: "5:05", duration: "3h 00m", price: 9987, stops: 2 },
 ];
 
 const airlines = [
@@ -62,6 +26,7 @@ const FlightResults = () => {
   const [adults, setAdults] = useState(1);
   const [cabinClass, setCabinClass] = useState("Economy");
   const [activeFilters, setActiveFilters] = useState(["0 Stops", "Upto $76"]);
+  const [showFilters, setShowFilters] = useState(false);
 
   const removeFilter = (f) => setActiveFilters((p) => p.filter((x) => x !== f));
   const clearAll = () => setActiveFilters([]);
@@ -85,37 +50,74 @@ const FlightResults = () => {
   };
 
   return (
-    <div
-      style={{
-        background: "#f3f4f6",
-        minHeight: "100vh",
-        fontFamily: "Inter, sans-serif",
-      }}
-    >
-      {/* Navbar — white background */}
-      <div style={{ marginTop:"130px"  }}>
+    <div style={{ background: "#f3f4f6", minHeight: "100vh", fontFamily: "Inter, sans-serif" }}>
+      <style>{`
+        /* ── Navbar spacing ── */
+        .fr-navbar-wrap { margin-top: 100px; }
+        @media (max-width: 768px) { .fr-navbar-wrap { margin-top: 80px; } }
+
+        /* ── Search bar ── */
+        .fr-search-bar { background:#fff; padding:16px 40px; box-shadow:0 2px 8px rgba(0,0,0,0.06); border-top:1px solid #f3f4f6; }
+        @media (max-width: 768px) { .fr-search-bar { padding:12px 16px; } }
+
+        .fr-trip-row { display:flex; align-items:center; justify-content:space-between; margin-bottom:16px; flex-wrap:wrap; gap:10px; }
+        .fr-trip-buttons { display:flex; gap:8px; flex-wrap:wrap; }
+        .fr-trip-right { display:flex; align-items:center; gap:10px; flex-wrap:wrap; }
+        @media (max-width: 600px) {
+          .fr-trip-row { flex-direction:column; align-items:flex-start; }
+          .fr-trip-right { width:100%; justify-content:flex-start; }
+          .fr-trip-buttons button { padding:7px 14px; font-size:12px; }
+        }
+
+        /* From/To/Date row */
+        .fr-route-row { display:flex; align-items:stretch; border:1.5px solid #e5e7eb; border-radius:16px; overflow:hidden; }
+        @media (max-width: 768px) {
+          .fr-route-row { flex-direction:column; border-radius:12px; }
+          .fr-route-cell { border-right:none !important; border-bottom:1px solid #e5e7eb; }
+          .fr-route-cell:last-child { border-bottom:none; }
+          .fr-swap-cell { border-right:none !important; border-bottom:1px solid #e5e7eb; justify-content:center; }
+        }
+
+        /* ── Main grid ── */
+        .fr-grid { display:grid; grid-template-columns:220px 1fr 200px; gap:20px; padding:24px 40px; max-width:1300px; margin:0 auto; }
+        @media (max-width: 1100px) { .fr-grid { grid-template-columns:200px 1fr; padding:20px 24px; } .fr-right-sidebar { display:none; } }
+        @media (max-width: 768px) { .fr-grid { grid-template-columns:1fr; padding:16px; } .fr-left-sidebar { display:none; } }
+
+        /* ── Mobile filter toggle ── */
+        .fr-mobile-filter-btn { display:none; }
+        @media (max-width: 768px) { .fr-mobile-filter-btn { display:flex; } }
+
+        /* ── Flight card ── */
+        .fr-card { background:#fff; border-radius:16px; padding:20px 24px; display:flex; align-items:center; justify-content:space-between; box-shadow:0 2px 8px rgba(0,0,0,0.05); gap:16px; }
+        @media (max-width: 600px) {
+          .fr-card { flex-direction:column; align-items:flex-start; padding:16px; }
+          .fr-card-price { width:100%; display:flex; align-items:center; justify-content:space-between; }
+          .fr-card-price-inner { text-align:left; }
+          .fr-card-flight { width:100%; }
+          .fr-card-airline { width:100%; }
+        }
+
+        /* ── Select dropdowns ── */
+        .fr-select-wrap { border:1.5px solid #e5e7eb; border-radius:999px; padding:8px 16px; }
+        @media (max-width: 480px) { .fr-select-wrap { padding:6px 10px; } .fr-select-wrap select { font-size:12px; } }
+
+        /* ── Mobile filter drawer ── */
+        .fr-filter-drawer { display:none; }
+        @media (max-width: 768px) {
+          .fr-filter-drawer.open { display:block; background:#fff; border-radius:16px; padding:16px; margin-bottom:16px; box-shadow:0 2px 8px rgba(0,0,0,0.08); }
+        }
+      `}</style>
+
+      {/* Navbar */}
+      <div className="fr-navbar-wrap">
         <Navbar dark={true} />
       </div>
 
       {/* Search Bar */}
-      <div
-        style={{
-          background: "#fff",
-          padding: "16px 40px",
-          boxShadow: "0 2px 8px rgba(0,0,0,0.06)",
-          borderTop: "1px solid #f3f4f6",
-        }}
-      >
+      <div className="fr-search-bar">
         {/* Trip Type + Adults + Class + Search */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "center",
-            justifyContent: "space-between",
-            marginBottom: "16px",
-          }}
-        >
-          <div style={{ display: "flex", gap: "8px" }}>
+        <div className="fr-trip-row">
+          <div className="fr-trip-buttons">
             {[
               { id: "oneway", label: "One Way" },
               { id: "roundtrip", label: "Round Trip" },
@@ -127,10 +129,7 @@ const FlightResults = () => {
                 style={{
                   padding: "8px 20px",
                   borderRadius: "999px",
-                  border:
-                    tripType === t.id
-                      ? "2px solid #1e1b4b"
-                      : "1.5px solid #e5e7eb",
+                  border: tripType === t.id ? "2px solid #1e1b4b" : "1.5px solid #e5e7eb",
                   background: tripType === t.id ? "#1e1b4b" : "#fff",
                   color: tripType === t.id ? "#fff" : "#6b7280",
                   fontSize: "14px",
@@ -142,68 +141,29 @@ const FlightResults = () => {
               </button>
             ))}
           </div>
-          <div style={{ display: "flex", alignItems: "center", gap: "10px" }}>
-            <div
-              style={{
-                border: "1.5px solid #e5e7eb",
-                borderRadius: "999px",
-                padding: "8px 16px",
-              }}
-            >
+          <div className="fr-trip-right">
+            <div className="fr-select-wrap">
               <select
                 value={adults}
                 onChange={(e) => setAdults(e.target.value)}
-                style={{
-                  border: "none",
-                  outline: "none",
-                  fontSize: "14px",
-                  color: "#374151",
-                  cursor: "pointer",
-                  background: "transparent",
-                }}
+                style={{ border: "none", outline: "none", fontSize: "14px", color: "#374151", cursor: "pointer", background: "transparent" }}
               >
                 {[1, 2, 3, 4, 5, 6].map((n) => (
-                  <option key={n} value={n}>
-                    {n} Adult{n > 1 ? "s" : ""}
-                  </option>
+                  <option key={n} value={n}>{n} Adult{n > 1 ? "s" : ""}</option>
                 ))}
               </select>
             </div>
-            <div
-              style={{
-                border: "1.5px solid #e5e7eb",
-                borderRadius: "999px",
-                padding: "8px 16px",
-              }}
-            >
+            <div className="fr-select-wrap">
               <select
                 value={cabinClass}
                 onChange={(e) => setCabinClass(e.target.value)}
-                style={{
-                  border: "none",
-                  outline: "none",
-                  fontSize: "14px",
-                  color: "#374151",
-                  cursor: "pointer",
-                  background: "transparent",
-                }}
+                style={{ border: "none", outline: "none", fontSize: "14px", color: "#374151", cursor: "pointer", background: "transparent" }}
               >
-                {["Economy", "Business", "First Class"].map((c) => (
-                  <option key={c}>{c}</option>
-                ))}
+                {["Economy", "Business", "First Class"].map((c) => <option key={c}>{c}</option>)}
               </select>
             </div>
             <button
-              style={{
-                background: "#f5a623",
-                color: "#fff",
-                border: "none",
-                borderRadius: "999px",
-                padding: "10px 32px",
-                fontSize: "14px",
-                fontWeight: "700",
-                cursor: "pointer",
-              }}
+              style={{ background: "#f5a623", color: "#fff", border: "none", borderRadius: "999px", padding: "10px 32px", fontSize: "14px", fontWeight: "700", cursor: "pointer" }}
             >
               Search
             </button>
@@ -211,596 +171,196 @@ const FlightResults = () => {
         </div>
 
         {/* From / To / Date Row */}
-        <div
-          style={{
-            display: "flex",
-            alignItems: "stretch",
-            border: "1.5px solid #e5e7eb",
-            borderRadius: "16px",
-            overflow: "hidden",
-          }}
-        >
-          <div
-            style={{
-              flex: 1,
-              padding: "14px 18px",
-              borderRight: "1px solid #e5e7eb",
-            }}
-          >
-            <p
-              style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}
-            >
-              From
-            </p>
-            <input
-              type="text"
-              defaultValue="Dhaka, Bangladesh"
-              style={inputStyle}
-            />
+        <div className="fr-route-row">
+          <div className="fr-route-cell" style={{ flex: 1, padding: "14px 18px", borderRight: "1px solid #e5e7eb" }}>
+            <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}>From</p>
+            <input type="text" defaultValue="Dhaka, Bangladesh" style={inputStyle} />
           </div>
-          <div
-            style={{
-              display: "flex",
-              alignItems: "center",
-              padding: "0 10px",
-              borderRight: "1px solid #e5e7eb",
-            }}
-          >
-            <button
-              style={{
-                width: "34px",
-                height: "34px",
-                borderRadius: "50%",
-                border: "1.5px solid #e5e7eb",
-                background: "#fff",
-                cursor: "pointer",
-                fontSize: "15px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "center",
-                color: "#6b7280",
-              }}
-            >
-              ⇄
-            </button>
+          <div className="fr-swap-cell fr-route-cell" style={{ display: "flex", alignItems: "center", padding: "0 10px", borderRight: "1px solid #e5e7eb" }}>
+            <button style={{ width: "34px", height: "34px", borderRadius: "50%", border: "1.5px solid #e5e7eb", background: "#fff", cursor: "pointer", fontSize: "15px", display: "flex", alignItems: "center", justifyContent: "center", color: "#6b7280" }}>⇄</button>
           </div>
-          <div
-            style={{
-              flex: 1,
-              padding: "14px 18px",
-              borderRight: "1px solid #e5e7eb",
-            }}
-          >
-            <p
-              style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}
-            >
-              To
-            </p>
+          <div className="fr-route-cell" style={{ flex: 1, padding: "14px 18px", borderRight: "1px solid #e5e7eb" }}>
+            <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}>To</p>
             <input type="text" placeholder="Select City" style={inputStyle} />
           </div>
-          <div
-            style={{
-              flex: 1,
-              padding: "14px 18px",
-              borderRight: "1px solid #e5e7eb",
-            }}
-          >
-            <p
-              style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}
-            >
-              Depart
-            </p>
-            <input
-              type="text"
-              defaultValue="Fri, 25 July 2025"
-              style={{ ...inputStyle, fontWeight: "700" }}
-            />
+          <div className="fr-route-cell" style={{ flex: 1, padding: "14px 18px", borderRight: "1px solid #e5e7eb" }}>
+            <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}>Depart</p>
+            <input type="text" defaultValue="Fri, 25 July 2025" style={{ ...inputStyle, fontWeight: "700" }} />
           </div>
-          <div style={{ flex: 1, padding: "14px 18px" }}>
-            <p
-              style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}
-            >
-              Return On
-            </p>
-            <input
-              type="text"
-              placeholder="Select Date"
-              style={{ ...inputStyle, color: "#9ca3af", fontWeight: "400" }}
-            />
+          <div className="fr-route-cell" style={{ flex: 1, padding: "14px 18px" }}>
+            <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 4px" }}>Return On</p>
+            <input type="text" placeholder="Select Date" style={{ ...inputStyle, color: "#9ca3af", fontWeight: "400" }} />
           </div>
         </div>
       </div>
 
       {/* Main Content */}
-      <div
-        style={{
-          display: "grid",
-          gridTemplateColumns: "220px 1fr 200px",
-          gap: "20px",
-          padding: "24px 40px",
-          maxWidth: "1300px",
-          margin: "0 auto",
-        }}
-      >
-        {/* Left Sidebar */}
-        <div>
-          {/* Active Filters */}
-          <div style={filterBoxStyle}>
-            <div
-              style={{
-                display: "flex",
-                justifyContent: "space-between",
-                alignItems: "center",
-                marginBottom: "12px",
-              }}
-            >
-              <span
-                style={{
-                  fontSize: "14px",
-                  fontWeight: "700",
-                  color: "#111827",
-                }}
-              >
-                Active Filters
-              </span>
-              <button
-                onClick={clearAll}
-                style={{
-                  background: "#1e1b4b",
-                  color: "#fff",
-                  border: "none",
-                  borderRadius: "6px",
-                  padding: "4px 12px",
-                  fontSize: "12px",
-                  fontWeight: "600",
-                  cursor: "pointer",
-                }}
-              >
-                Clear All
-              </button>
-            </div>
-            {activeFilters.map((f) => (
-              <div
-                key={f}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "8px",
-                }}
-              >
-                <span style={{ fontSize: "13px", color: "#374151" }}>{f}</span>
-                <button
-                  onClick={() => removeFilter(f)}
-                  style={{
-                    background: "transparent",
-                    border: "none",
-                    cursor: "pointer",
-                    color: "#9ca3af",
-                    fontSize: "16px",
-                  }}
-                >
-                  ×
-                </button>
-              </div>
-            ))}
-          </div>
-
-          {/* Stops */}
-          <div style={filterBoxStyle}>
-            <p
-              style={{
-                fontSize: "14px",
-                fontWeight: "700",
-                color: "#111827",
-                margin: "0 0 12px",
-              }}
-            >
-              Stops
-            </p>
-            {[0, 1, 2].map((s) => (
-              <div
-                key={s}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "10px",
-                }}
-              >
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="stops"
-                    checked={stops === s}
-                    onChange={() => setStops(s)}
-                    style={{
-                      accentColor: "#f5a623",
-                      width: "16px",
-                      height: "16px",
-                    }}
-                  />
-                  <span style={{ fontSize: "13px", color: "#374151" }}>
-                    {s}
-                  </span>
-                </label>
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "#9ca3af",
-                    background: "#f3f4f6",
-                    borderRadius: "999px",
-                    padding: "2px 8px",
-                  }}
-                >
-                  04
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Depart Time */}
-          <div style={filterBoxStyle}>
-            <p
-              style={{
-                fontSize: "14px",
-                fontWeight: "700",
-                color: "#111827",
-                margin: "0 0 12px",
-              }}
-            >
-              Depart Time
-            </p>
-            {["00-06", "06-12", "12-18", "18-24"].map((t) => (
-              <div
-                key={t}
-                style={{
-                  display: "flex",
-                  justifyContent: "space-between",
-                  alignItems: "center",
-                  marginBottom: "10px",
-                }}
-              >
-                <label
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "8px",
-                    cursor: "pointer",
-                  }}
-                >
-                  <input
-                    type="radio"
-                    name="depart"
-                    checked={departTime === t}
-                    onChange={() => setDepartTime(t)}
-                    style={{
-                      accentColor: "#f5a623",
-                      width: "16px",
-                      height: "16px",
-                    }}
-                  />
-                  <span style={{ fontSize: "13px", color: "#374151" }}>
-                    {t}
-                  </span>
-                </label>
-                <span
-                  style={{
-                    fontSize: "12px",
-                    color: "#9ca3af",
-                    background: "#f3f4f6",
-                    borderRadius: "999px",
-                    padding: "2px 8px",
-                  }}
-                >
-                  04
-                </span>
-              </div>
-            ))}
-          </div>
-
-          {/* Filter by Price */}
-          <div style={{ ...filterBoxStyle, marginBottom: 0 }}>
-            <p
-              style={{
-                fontSize: "14px",
-                fontWeight: "700",
-                color: "#111827",
-                margin: "0 0 16px",
-              }}
-            >
-              Filter by Price
-            </p>
-            <input
-              type="range"
-              min={0}
-              max={500}
-              value={priceRange}
-              onChange={(e) => setPriceRange(e.target.value)}
-              style={{
-                width: "100%",
-                accentColor: "#f5a623",
-                marginBottom: "8px",
-              }}
-            />
-            <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>
-              Price: $0 — ${priceRange}
-            </p>
-          </div>
+      <div className="fr-grid">
+        {/* Left Sidebar (hidden on mobile) */}
+        <div className="fr-left-sidebar">
+          <Sidebar
+            filterBoxStyle={filterBoxStyle}
+            activeFilters={activeFilters}
+            clearAll={clearAll}
+            removeFilter={removeFilter}
+            stops={stops}
+            setStops={setStops}
+            departTime={departTime}
+            setDepartTime={setDepartTime}
+            priceRange={priceRange}
+            setPriceRange={setPriceRange}
+          />
         </div>
 
         {/* Center — Flight Cards */}
-        <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
-          {flights.map((flight, i) => (
-            <div
-              key={i}
-              style={{
-                background: "#fff",
-                borderRadius: "16px",
-                padding: "20px 24px",
-                display: "flex",
-                alignItems: "center",
-                justifyContent: "space-between",
-                boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-              }}
-            >
-              {/* Airline Logo + Name */}
-              <div
-                style={{
-                  display: "flex",
-                  alignItems: "center",
-                  gap: "12px",
-                  minWidth: "120px",
-                }}
-              >
-                <div
-                  style={{
-                    width: "48px",
-                    height: "48px",
-                    borderRadius: "50%",
-                    background: "#cc0001",
-                    display: "flex",
-                    alignItems: "center",
-                    justifyContent: "center",
-                    fontSize: "22px",
-                    color: "#fff",
-                    overflow: "hidden",
-                  }}
-                >
-                  <img
-                    src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Emirates_logo.svg/1200px-Emirates_logo.svg.png"
-                    alt="Emirates"
-                    style={{
-                      width: "100%",
-                      height: "100%",
-                      objectFit: "cover",
-                    }}
-                  />
-                </div>
-                <span
-                  style={{
-                    fontSize: "14px",
-                    fontWeight: "600",
-                    color: "#111827",
-                  }}
-                >
-                  {flight.airline}
-                </span>
-              </div>
+        <div>
+          {/* Mobile: Filter toggle button */}
+          <button
+            className="fr-mobile-filter-btn"
+            onClick={() => setShowFilters((p) => !p)}
+            style={{ background: "#1e1b4b", color: "#fff", border: "none", borderRadius: "999px", padding: "10px 20px", fontSize: "14px", fontWeight: "600", cursor: "pointer", marginBottom: "12px", alignItems: "center", gap: "8px" }}
+          >
+            🔧 {showFilters ? "Hide Filters" : "Show Filters"}
+          </button>
 
-              {/* Flight Info */}
-              <div style={{ flex: 1, padding: "0 24px" }}>
-                <div
-                  style={{
-                    display: "flex",
-                    alignItems: "center",
-                    gap: "16px",
-                    marginBottom: "6px",
-                  }}
-                >
-                  <span
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: "800",
-                      color: "#111827",
-                    }}
-                  >
-                    {flight.depart}
-                  </span>
-                  <div style={{ flex: 1 }}>
-                    <div
-                      style={{
-                        position: "relative",
-                        height: "2px",
-                        background: "#e5e7eb",
-                        borderRadius: "999px",
-                      }}
-                    >
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "50%",
-                          left: "10%",
-                          transform: "translateY(-50%)",
-                          width: "8px",
-                          height: "8px",
-                          borderRadius: "50%",
-                          background: "#d1d5db",
-                          border: "2px solid #fff",
-                        }}
-                      />
-                      <div
-                        style={{
-                          position: "absolute",
-                          top: "50%",
-                          right: "10%",
-                          transform: "translateY(-50%)",
-                          width: "8px",
-                          height: "8px",
-                          borderRadius: "50%",
-                          background: "#d1d5db",
-                          border: "2px solid #fff",
-                        }}
-                      />
-                    </div>
-                    <p
-                      style={{
-                        fontSize: "11px",
-                        color: "#9ca3af",
-                        textAlign: "center",
-                        margin: "4px 0 0",
-                      }}
-                    >
-                      {flight.duration}
-                    </p>
+          {/* Mobile filter drawer */}
+          <div className={`fr-filter-drawer ${showFilters ? "open" : ""}`}>
+            <Sidebar
+              filterBoxStyle={{}}
+              activeFilters={activeFilters}
+              clearAll={clearAll}
+              removeFilter={removeFilter}
+              stops={stops}
+              setStops={setStops}
+              departTime={departTime}
+              setDepartTime={setDepartTime}
+              priceRange={priceRange}
+              setPriceRange={setPriceRange}
+            />
+          </div>
+
+          <div style={{ display: "flex", flexDirection: "column", gap: "16px" }}>
+            {flights.map((flight, i) => (
+              <div key={i} className="fr-card">
+                {/* Airline Logo + Name */}
+                <div className="fr-card-airline" style={{ display: "flex", alignItems: "center", gap: "12px", minWidth: "120px" }}>
+                  <div style={{ width: "48px", height: "48px", borderRadius: "50%", background: "#cc0001", display: "flex", alignItems: "center", justifyContent: "center", overflow: "hidden", flexShrink: 0 }}>
+                    <img
+                      src="https://upload.wikimedia.org/wikipedia/commons/thumb/d/d0/Emirates_logo.svg/1200px-Emirates_logo.svg.png"
+                      alt="Emirates"
+                      style={{ width: "100%", height: "100%", objectFit: "cover" }}
+                    />
                   </div>
-                  <span
-                    style={{
-                      fontSize: "20px",
-                      fontWeight: "800",
-                      color: "#111827",
-                    }}
-                  >
-                    {flight.arrive}
-                  </span>
+                  <span style={{ fontSize: "14px", fontWeight: "600", color: "#111827" }}>{flight.airline}</span>
                 </div>
-                <div
-                  style={{
-                    display: "flex",
-                    justifyContent: "space-between",
-                    paddingRight: "4px",
-                  }}
-                >
-                  <span style={{ fontSize: "12px", color: "#9ca3af" }}>
-                    {flight.from}
-                  </span>
-                  <span style={{ fontSize: "12px", color: "#9ca3af" }}>
-                    {flight.to}
-                  </span>
-                </div>
-              </div>
 
-              {/* Price + Select */}
-              <div style={{ textAlign: "right", minWidth: "130px" }}>
-                <div style={{ marginBottom: "2px" }}>
-                  <span
-                    style={{
-                      fontSize: "13px",
-                      color: "#6b7280",
-                      fontWeight: "600",
-                    }}
-                  >
-                    TK
-                  </span>
-                  <span
-                    style={{
-                      fontSize: "26px",
-                      fontWeight: "800",
-                      color: "#111827",
-                    }}
-                  >
-                    {flight.price.toLocaleString()}
-                  </span>
+                {/* Flight Info */}
+                <div className="fr-card-flight" style={{ flex: 1, padding: "0 16px" }}>
+                  <div style={{ display: "flex", alignItems: "center", gap: "16px", marginBottom: "6px" }}>
+                    <span style={{ fontSize: "20px", fontWeight: "800", color: "#111827" }}>{flight.depart}</span>
+                    <div style={{ flex: 1 }}>
+                      <div style={{ position: "relative", height: "2px", background: "#e5e7eb", borderRadius: "999px" }}>
+                        <div style={{ position: "absolute", top: "50%", left: "10%", transform: "translateY(-50%)", width: "8px", height: "8px", borderRadius: "50%", background: "#d1d5db", border: "2px solid #fff" }} />
+                        <div style={{ position: "absolute", top: "50%", right: "10%", transform: "translateY(-50%)", width: "8px", height: "8px", borderRadius: "50%", background: "#d1d5db", border: "2px solid #fff" }} />
+                      </div>
+                      <p style={{ fontSize: "11px", color: "#9ca3af", textAlign: "center", margin: "4px 0 0" }}>{flight.duration}</p>
+                    </div>
+                    <span style={{ fontSize: "20px", fontWeight: "800", color: "#111827" }}>{flight.arrive}</span>
+                  </div>
+                  <div style={{ display: "flex", justifyContent: "space-between" }}>
+                    <span style={{ fontSize: "12px", color: "#9ca3af" }}>{flight.from}</span>
+                    <span style={{ fontSize: "12px", color: "#9ca3af" }}>{flight.to}</span>
+                  </div>
                 </div>
-                <p
-                  style={{
-                    fontSize: "11px",
-                    color: "#9ca3af",
-                    margin: "0 0 12px",
-                  }}
-                >
-                  Per Person
-                </p>
-                <button
-                  style={{
-                    background: "#f5a623",
-                    color: "#fff",
-                    border: "none",
-                    borderRadius: "999px",
-                    padding: "9px 28px",
-                    fontSize: "13px",
-                    fontWeight: "700",
-                    cursor: "pointer",
-                  }}
-                >
-                  Select
-                </button>
+
+                {/* Price + Select */}
+                <div className="fr-card-price">
+                  <div className="fr-card-price-inner" style={{ textAlign: "right" }}>
+                    <div style={{ marginBottom: "2px" }}>
+                      <span style={{ fontSize: "13px", color: "#6b7280", fontWeight: "600" }}>TK </span>
+                      <span style={{ fontSize: "26px", fontWeight: "800", color: "#111827" }}>{flight.price.toLocaleString()}</span>
+                    </div>
+                    <p style={{ fontSize: "11px", color: "#9ca3af", margin: "0 0 12px" }}>Per Person</p>
+                    <button style={{ background: "#f5a623", color: "#fff", border: "none", borderRadius: "999px", padding: "9px 28px", fontSize: "13px", fontWeight: "700", cursor: "pointer" }}>
+                      Select
+                    </button>
+                  </div>
+                </div>
               </div>
-            </div>
-          ))}
+            ))}
+          </div>
         </div>
 
-        {/* Right Sidebar */}
-        <div
-          style={{
-            background: "#fff",
-            borderRadius: "16px",
-            padding: "16px",
-            boxShadow: "0 2px 8px rgba(0,0,0,0.05)",
-            height: "fit-content",
-          }}
-        >
-          <p
-            style={{
-              fontSize: "14px",
-              fontWeight: "700",
-              color: "#111827",
-              margin: "0 0 16px",
-            }}
-          >
-            Search by Flight
-          </p>
+        {/* Right Sidebar (hidden on tablet/mobile) */}
+        <div className="fr-right-sidebar" style={{ background: "#fff", borderRadius: "16px", padding: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)", height: "fit-content" }}>
+          <p style={{ fontSize: "14px", fontWeight: "700", color: "#111827", margin: "0 0 16px" }}>Search by Flight</p>
           {airlines.map((a, i) => (
-            <div
-              key={i}
-              style={{
-                display: "flex",
-                alignItems: "center",
-                gap: "10px",
-                marginBottom: "14px",
-                cursor: "pointer",
-              }}
-            >
-              <div
-                style={{
-                  width: "38px",
-                  height: "38px",
-                  borderRadius: "50%",
-                  background: a.color,
-                  display: "flex",
-                  alignItems: "center",
-                  justifyContent: "center",
-                  fontSize: "18px",
-                  color: "#fff",
-                }}
-              >
-                ✈
-              </div>
-              <span
-                style={{
-                  fontSize: "13px",
-                  fontWeight: "600",
-                  color: "#111827",
-                }}
-              >
-                {a.name}
-              </span>
+            <div key={i} style={{ display: "flex", alignItems: "center", gap: "10px", marginBottom: "14px", cursor: "pointer" }}>
+              <div style={{ width: "38px", height: "38px", borderRadius: "50%", background: a.color, display: "flex", alignItems: "center", justifyContent: "center", fontSize: "18px", color: "#fff", flexShrink: 0 }}>✈</div>
+              <span style={{ fontSize: "13px", fontWeight: "600", color: "#111827" }}>{a.name}</span>
             </div>
           ))}
         </div>
       </div>
-       <PartnerBanner />
+
+      <PartnerBanner />
       <Footer />
     </div>
-    
   );
 };
+
+/* ── Sidebar extracted as sub-component ── */
+const Sidebar = ({ filterBoxStyle, activeFilters, clearAll, removeFilter, stops, setStops, departTime, setDepartTime, priceRange, setPriceRange }) => (
+  <div>
+    {/* Active Filters */}
+    <div style={{ ...filterBoxStyle, background: "#fff", borderRadius: "16px", padding: "16px", marginBottom: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+      <div style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "12px" }}>
+        <span style={{ fontSize: "14px", fontWeight: "700", color: "#111827" }}>Active Filters</span>
+        <button onClick={clearAll} style={{ background: "#1e1b4b", color: "#fff", border: "none", borderRadius: "6px", padding: "4px 12px", fontSize: "12px", fontWeight: "600", cursor: "pointer" }}>Clear All</button>
+      </div>
+      {activeFilters.map((f) => (
+        <div key={f} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "8px" }}>
+          <span style={{ fontSize: "13px", color: "#374151" }}>{f}</span>
+          <button onClick={() => removeFilter(f)} style={{ background: "transparent", border: "none", cursor: "pointer", color: "#9ca3af", fontSize: "16px" }}>×</button>
+        </div>
+      ))}
+    </div>
+
+    {/* Stops */}
+    <div style={{ background: "#fff", borderRadius: "16px", padding: "16px", marginBottom: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+      <p style={{ fontSize: "14px", fontWeight: "700", color: "#111827", margin: "0 0 12px" }}>Stops</p>
+      {[0, 1, 2].map((s) => (
+        <div key={s} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+            <input type="radio" name="stops" checked={stops === s} onChange={() => setStops(s)} style={{ accentColor: "#f5a623", width: "16px", height: "16px" }} />
+            <span style={{ fontSize: "13px", color: "#374151" }}>{s}</span>
+          </label>
+          <span style={{ fontSize: "12px", color: "#9ca3af", background: "#f3f4f6", borderRadius: "999px", padding: "2px 8px" }}>04</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Depart Time */}
+    <div style={{ background: "#fff", borderRadius: "16px", padding: "16px", marginBottom: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+      <p style={{ fontSize: "14px", fontWeight: "700", color: "#111827", margin: "0 0 12px" }}>Depart Time</p>
+      {["00-06", "06-12", "12-18", "18-24"].map((t) => (
+        <div key={t} style={{ display: "flex", justifyContent: "space-between", alignItems: "center", marginBottom: "10px" }}>
+          <label style={{ display: "flex", alignItems: "center", gap: "8px", cursor: "pointer" }}>
+            <input type="radio" name="depart" checked={departTime === t} onChange={() => setDepartTime(t)} style={{ accentColor: "#f5a623", width: "16px", height: "16px" }} />
+            <span style={{ fontSize: "13px", color: "#374151" }}>{t}</span>
+          </label>
+          <span style={{ fontSize: "12px", color: "#9ca3af", background: "#f3f4f6", borderRadius: "999px", padding: "2px 8px" }}>04</span>
+        </div>
+      ))}
+    </div>
+
+    {/* Filter by Price */}
+    <div style={{ background: "#fff", borderRadius: "16px", padding: "16px", boxShadow: "0 2px 8px rgba(0,0,0,0.05)" }}>
+      <p style={{ fontSize: "14px", fontWeight: "700", color: "#111827", margin: "0 0 16px" }}>Filter by Price</p>
+      <input type="range" min={0} max={500} value={priceRange} onChange={(e) => setPriceRange(e.target.value)} style={{ width: "100%", accentColor: "#f5a623", marginBottom: "8px" }} />
+      <p style={{ fontSize: "12px", color: "#6b7280", margin: 0 }}>Price: $0 — ${priceRange}</p>
+    </div>
+  </div>
+);
 
 export default FlightResults;

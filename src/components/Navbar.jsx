@@ -1,24 +1,27 @@
 import { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { Link } from "react-router-dom";
+import { useNavigate, Link } from "react-router-dom";
+import { useApp } from "../context/AppContext";
 
 const Navbar = ({ dark = false }) => {
   const navigate = useNavigate();
+  const {
+    selectedCountry,
+    setSelectedCountry,
+    selectedLang,
+    setSelectedLang,
+    selectedCurrency,
+    setSelectedCurrency,
+  } = useApp();
+
   const [openDropdown, setOpenDropdown] = useState(null);
   const [menuOpen, setMenuOpen] = useState(false);
-  const [selectedLang, setSelectedLang] = useState("EN");
-  const [selectedCurrency, setSelectedCurrency] = useState("TK");
-  const [selectedCountry, setSelectedCountry] = useState({
-    flag: "https://flagcdn.com/w40/bd.png",
-    name: "Bangladesh",
-  });
   const dropdownRef = useRef(null);
 
   const countries = [
-    { flag: "https://flagcdn.com/w40/bd.png", name: "Bangladesh" },
-    { flag: "https://flagcdn.com/w40/us.png", name: "USA" },
-    { flag: "https://flagcdn.com/w40/gb.png", name: "UK" },
-    { flag: "https://flagcdn.com/w40/in.png", name: "India" },
+    { flag: "https://flagcdn.com/w40/bd.png", name: "Bangladesh", code: "BD" },
+    { flag: "https://flagcdn.com/w40/us.png", name: "USA", code: "US" },
+    { flag: "https://flagcdn.com/w40/gb.png", name: "UK", code: "GB" },
+    { flag: "https://flagcdn.com/w40/in.png", name: "India", code: "IN" },
   ];
 
   useEffect(() => {
@@ -35,7 +38,6 @@ const Navbar = ({ dark = false }) => {
   const toggle = (name) =>
     setOpenDropdown((prev) => (prev === name ? null : name));
 
-  // dark mode এ color গুলো আলাদা
   const textColor = dark ? "#111827" : "#fff";
   const hoverBg = dark ? "rgba(0,0,0,0.06)" : "rgba(255,255,255,0.1)";
   const dividerColor = dark ? "rgba(0,0,0,0.15)" : "rgba(255,255,255,0.25)";
@@ -48,6 +50,7 @@ const Navbar = ({ dark = false }) => {
     ? "1px solid rgba(0,0,0,0.1)"
     : "1px solid rgba(255,255,255,0.2)";
   const navbarBlur = dark ? "none" : "blur(16px)";
+  const hamburgerColor = dark && !menuOpen ? "#111827" : "#fff";
 
   const navBtnStyle = {
     display: "flex",
@@ -92,8 +95,6 @@ const Navbar = ({ dark = false }) => {
     textAlign: "left",
   };
 
-  const hamburgerColor = dark && !menuOpen ? "#111827" : "#fff";
-
   return (
     <>
       <style>{`
@@ -129,7 +130,7 @@ const Navbar = ({ dark = false }) => {
             alignItems: "center",
             justifyContent: "space-between",
             padding: "10px 20px",
-            borderRadius: "999px",
+            borderRadius: menuOpen ? "20px" : "999px",
             border: navbarBorder,
             background: navbarBg,
             backdropFilter: menuOpen ? "none" : navbarBlur,
@@ -138,19 +139,17 @@ const Navbar = ({ dark = false }) => {
           }}
         >
           {/* Logo */}
-          <div>
-            <Link to="/">
-              <img
-                src={dark ? "/logo2.png" : "/logo (4).png"}
-                alt="Gozyraa Logo"
-                style={{
-                  height: "40px",
-                  objectFit: "contain",
-                  cursor: "pointer",
-                }}
-              />
-            </Link>
-          </div>
+          <Link to="/">
+            <img
+              src={dark ? "/logo2.png" : "/logo (4).png"}
+              alt="Gozyraa Logo"
+              style={{
+                height: "40px",
+                objectFit: "contain",
+                cursor: "pointer",
+              }}
+            />
+          </Link>
 
           {/* Desktop Nav Links */}
           <div
@@ -300,7 +299,6 @@ const Navbar = ({ dark = false }) => {
               )}
             </div>
 
-            {/* Divider */}
             <div
               style={{
                 width: "1px",
@@ -320,6 +318,7 @@ const Navbar = ({ dark = false }) => {
             >
               Visa
             </button>
+
             <button
               onClick={() => navigate("/contact")}
               style={navBtnStyle}
@@ -332,7 +331,7 @@ const Navbar = ({ dark = false }) => {
             </button>
           </div>
 
-          {/* Desktop Account Button */}
+          {/* Account Button */}
           <button
             className="nav-account"
             onClick={() => navigate("/profile")}
@@ -417,6 +416,7 @@ const Navbar = ({ dark = false }) => {
                 gap: "4px",
               }}
             >
+              {/* Country */}
               <div style={{ position: "relative" }}>
                 <button
                   onClick={() => toggle("country")}
@@ -484,6 +484,7 @@ const Navbar = ({ dark = false }) => {
                 )}
               </div>
 
+              {/* Language */}
               <div style={{ position: "relative" }}>
                 <button
                   onClick={() => toggle("lang")}
@@ -525,6 +526,7 @@ const Navbar = ({ dark = false }) => {
                 )}
               </div>
 
+              {/* Currency */}
               <div style={{ position: "relative" }}>
                 <button
                   onClick={() => toggle("currency")}
@@ -576,6 +578,10 @@ const Navbar = ({ dark = false }) => {
               />
 
               <button
+                onClick={() => {
+                  navigate("/visa");
+                  setMenuOpen(false);
+                }}
                 style={{
                   ...navBtnStyle,
                   color: "#fff",
@@ -586,6 +592,10 @@ const Navbar = ({ dark = false }) => {
                 Visa
               </button>
               <button
+                onClick={() => {
+                  navigate("/contact");
+                  setMenuOpen(false);
+                }}
                 style={{
                   ...navBtnStyle,
                   color: "#fff",
@@ -597,6 +607,10 @@ const Navbar = ({ dark = false }) => {
               </button>
 
               <button
+                onClick={() => {
+                  navigate("/profile");
+                  setMenuOpen(false);
+                }}
                 style={{
                   background: "#f5a623",
                   color: "#fff",

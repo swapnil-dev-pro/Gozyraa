@@ -1,7 +1,7 @@
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import Navbar from "../components/Navbar";
-import PartnerBanner from '../components/PartnerBanner'
-import Footer from '../components/Footer'
+import PartnerBanner from "../components/PartnerBanner";
+import Footer from "../components/Footer";
 
 const countries = [
   { name: "Oman", flag: "https://flagcdn.com/w40/om.png" },
@@ -16,6 +16,17 @@ const countries = [
 
 const Visa = () => {
   const [search, setSearch] = useState("");
+  const [windowWidth, setWindowWidth] = useState(window.innerWidth);
+
+  useEffect(() => {
+    const handleResize = () => setWindowWidth(window.innerWidth);
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  const isMobile = windowWidth < 640;
+  const isTablet = windowWidth >= 640 && windowWidth < 1024;
+  const isSmall = isMobile || isTablet;
 
   const filtered = countries.filter((c) =>
     c.name.toLowerCase().includes(search.toLowerCase()),
@@ -36,7 +47,15 @@ const Visa = () => {
 
       {/* Content */}
       <div
-        style={{ padding: "40px 60px", maxWidth: "900px", margin: "0 auto" }}
+        style={{
+          padding: isMobile
+            ? "24px 16px"
+            : isTablet
+              ? "32px 32px"
+              : "40px 60px",
+          maxWidth: "900px",
+          margin: "0 auto",
+        }}
       >
         {/* Title */}
         <h1
@@ -53,14 +72,13 @@ const Visa = () => {
           Get your visa with help of us
         </p>
 
-        {/* Two Column Layout */}
+        {/* Two Column Layout — mobile/tablet: stack, desktop: side by side */}
         <div
           style={{
             display: "grid",
-            gridTemplateColumns: "1fr 320px",
+            gridTemplateColumns: isSmall ? "1fr" : "1fr 320px",
             gap: "24px",
             alignItems: "start",
-            gridTemplateRows: "auto",
           }}
         >
           {/* Left — Search + Country List */}
@@ -182,15 +200,15 @@ const Visa = () => {
             style={{
               background: "#f5a623",
               borderRadius: "16px",
-              padding: "28px 24px",
+              padding: isMobile ? "24px 20px" : "28px 24px",
               boxShadow: "0 4px 20px rgba(245,166,35,0.3)",
-              position: "sticky",
+              position: isSmall ? "static" : "sticky", // mobile/tablet: static, desktop: sticky
               top: "20px",
             }}
           >
             <h2
               style={{
-                fontSize: "22px",
+                fontSize: isMobile ? "20px" : "22px",
                 fontWeight: "800",
                 color: "#fff",
                 margin: "0 0 14px",

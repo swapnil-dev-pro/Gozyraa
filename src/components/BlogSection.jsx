@@ -1,12 +1,40 @@
+import { useState, useEffect } from 'react'
+
 const BlogSection = () => {
+  const [isMobile, setIsMobile] = useState(false)
+
+  useEffect(() => {
+    const check = () => setIsMobile(window.innerWidth <= 768)
+    check()
+    window.addEventListener('resize', check)
+    return () => window.removeEventListener('resize', check)
+  }, [])
+
+  const cards = [
+    {
+      src: 'https://images.unsplash.com/photo-1520962880247-cfaf541c8724?w=800&q=80',
+      alt: 'Expert Tour Guides',
+      title: 'Expert\nTour Guides',
+      desc: 'Explore with local experts who bring destinations to life.',
+    },
+    {
+      src: 'https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80',
+      alt: 'Travel Community',
+      title: 'Travel\nCommunity',
+      desc: 'Connect, share, and make lifelong memories with fellow explorers.',
+    },
+  ]
+
   return (
-    <div style={{ padding: '60px 60px', background: '#fff' }}>
+    <div style={{ padding: isMobile ? '40px 20px' : '60px 60px', background: '#fff' }}>
 
       {/* Top Row */}
       <div style={{
         display: 'flex',
+        flexDirection: isMobile ? 'column' : 'row',
         justifyContent: 'space-between',
-        alignItems: 'flex-start',
+        alignItems: isMobile ? 'flex-start' : 'flex-start',
+        gap: isMobile ? '24px' : '0',
         marginBottom: '40px',
       }}>
 
@@ -23,7 +51,7 @@ const BlogSection = () => {
           }}>Blog</span>
 
           <h2 style={{
-            fontSize: '32px',
+            fontSize: isMobile ? '26px' : '32px',
             fontWeight: '800',
             color: '#111827',
             margin: 0,
@@ -34,7 +62,7 @@ const BlogSection = () => {
         </div>
 
         {/* Right */}
-        <div style={{ maxWidth: '320px', textAlign: 'left' }}>
+        <div style={{ maxWidth: isMobile ? '100%' : '320px', textAlign: 'left' }}>
           <p style={{
             fontSize: '14px',
             color: '#6b7280',
@@ -53,6 +81,7 @@ const BlogSection = () => {
             fontSize: '14px',
             fontWeight: '700',
             cursor: 'pointer',
+            width: isMobile ? '100%' : 'auto',
           }}>
             Explore All Destinations
           </button>
@@ -62,132 +91,68 @@ const BlogSection = () => {
       {/* Cards Row */}
       <div style={{
         display: 'grid',
-        gridTemplateColumns: '1fr 1fr',
+        gridTemplateColumns: isMobile ? '1fr' : '1fr 1fr',
         gap: '20px',
       }}>
-
-        {/* Card 1 */}
-        <div style={{
-          position: 'relative',
-          borderRadius: '20px',
-          overflow: 'hidden',
-          height: '280px',
-        }}>
-          {/* Background Image */}
-          <img
-            src="https://images.unsplash.com/photo-1520962880247-cfaf541c8724?w=800&q=80"
-            alt="Expert Tour Guides"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-
-          {/* White Card Overlay */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            right: '24px',
-            transform: 'translateY(-50%)',
-            background: '#fff',
-            borderRadius: '16px',
-            padding: '24px 20px',
-            width: '180px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            textAlign: 'center',
+        {cards.map((card) => (
+          <div key={card.alt} style={{
+            position: 'relative',
+            borderRadius: '20px',
+            overflow: 'hidden',
+            height: isMobile ? '240px' : '280px',
           }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '700',
-              color: '#111827',
-              margin: '0 0 8px',
-              lineHeight: '1.3',
+            <img
+              src={card.src}
+              alt={card.alt}
+              style={{ width: '100%', height: '100%', objectFit: 'cover' }}
+            />
+            <div style={{
+              position: 'absolute',
+              top: '50%',
+              right: '24px',
+              transform: 'translateY(-50%)',
+              background: '#fff',
+              borderRadius: '16px',
+              padding: isMobile ? '16px 14px' : '24px 20px',
+              width: isMobile ? '150px' : '180px',
+              boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
+              textAlign: 'center',
             }}>
-              Expert<br />Tour Guides
-            </h3>
-            <p style={{
-              fontSize: '12px',
-              color: '#6b7280',
-              lineHeight: '1.6',
-              margin: '0 0 16px',
-            }}>
-              Explore with local experts who bring destinations to life.
-            </p>
-            <button style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#111827',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              margin: '0 auto',
-            }}>
-              Learn More →
-            </button>
+              <h3 style={{
+                fontSize: isMobile ? '14px' : '16px',
+                fontWeight: '700',
+                color: '#111827',
+                margin: '0 0 8px',
+                lineHeight: '1.3',
+                whiteSpace: 'pre-line',
+              }}>
+                {card.title}
+              </h3>
+              <p style={{
+                fontSize: '12px',
+                color: '#6b7280',
+                lineHeight: '1.6',
+                margin: '0 0 16px',
+              }}>
+                {card.desc}
+              </p>
+              <button style={{
+                background: 'transparent',
+                border: 'none',
+                fontSize: '13px',
+                fontWeight: '600',
+                color: '#111827',
+                cursor: 'pointer',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '4px',
+                margin: '0 auto',
+              }}>
+                Learn More →
+              </button>
+            </div>
           </div>
-        </div>
-
-        {/* Card 2 */}
-        <div style={{
-          position: 'relative',
-          borderRadius: '20px',
-          overflow: 'hidden',
-          height: '280px',
-        }}>
-          {/* Background Image */}
-          <img
-            src="https://images.unsplash.com/photo-1529156069898-49953e39b3ac?w=800&q=80"
-            alt="Travel Community"
-            style={{ width: '100%', height: '100%', objectFit: 'cover' }}
-          />
-
-          {/* White Card Overlay */}
-          <div style={{
-            position: 'absolute',
-            top: '50%',
-            right: '24px',
-            transform: 'translateY(-50%)',
-            background: '#fff',
-            borderRadius: '16px',
-            padding: '24px 20px',
-            width: '180px',
-            boxShadow: '0 8px 32px rgba(0,0,0,0.12)',
-            textAlign: 'center',
-          }}>
-            <h3 style={{
-              fontSize: '16px',
-              fontWeight: '700',
-              color: '#111827',
-              margin: '0 0 8px',
-              lineHeight: '1.3',
-            }}>
-              Travel<br />Community
-            </h3>
-            <p style={{
-              fontSize: '12px',
-              color: '#6b7280',
-              lineHeight: '1.6',
-              margin: '0 0 16px',
-            }}>
-              Connect, share, and make lifelong memories with fellow explorers.
-            </p>
-            <button style={{
-              background: 'transparent',
-              border: 'none',
-              fontSize: '13px',
-              fontWeight: '600',
-              color: '#111827',
-              cursor: 'pointer',
-              display: 'flex',
-              alignItems: 'center',
-              gap: '4px',
-              margin: '0 auto',
-            }}>
-              Learn More →
-            </button>
-          </div>
-        </div>
-
+        ))}
       </div>
     </div>
   )
